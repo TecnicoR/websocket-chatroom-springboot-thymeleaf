@@ -1,28 +1,25 @@
-<!-- src/main/resources/templates/chat.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Spring Boot Chatroom</title>
+    <!-- Include Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <!-- Include Animate.css for animations -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <!-- Include SockJS and STOMP -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js" integrity="sha512-1QvjE7BtotQjkq8PxLeF6P46gEpBRXuskzIVgjFpekzFVF4yjRgrQvTG1MTOJ3yQgvTteKAcO7DSZI92+u/yZw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js" integrity="sha512-iKDtgDyTHjAitUDdLljGhenhPwrbBfqTKWO1mkhSFH3A7blITC9MhYon6SjnMhp4o0rADGw9yAC6EW4t5a4K3g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <style>
-        /* Basic styling for the chat interface */
-        body { font-family: Arial, sans-serif; }
-        #chat { margin: 0 auto; max-width: 600px; }
-        #messages { border: 1px solid #ccc; height: 300px; overflow-y: scroll; padding: 10px; }
-        #message-form { display: flex; margin-top: 10px; }
-        #message-form input { flex: 1; padding: 10px; }
-        #message-form button { padding: 10px; }
-    </style>
 </head>
-<body>
-<div id="chat">
-    <h2>Welcome to the Chatroom!</h2>
-    <div id="messages"></div>
-    <div id="message-form">
-        <input type="text" id="from" placeholder="Your name" />
-        <input type="text" id="text" placeholder="Type a message..." />
-        <button onclick="sendMessage()">Send</button>
+<body class="bg-gray-100">
+<div id="chat" class="max-w-2xl mx-auto mt-10">
+    <h2 class="text-3xl font-bold text-center mb-6 text-gray-800">Welcome to the Chatroom!</h2>
+    <div id="messages" class="bg-white shadow-md rounded-lg p-6 h-96 overflow-y-scroll mb-4">
+        <!-- Messages will appear here -->
+    </div>
+    <div id="message-form" class="flex space-x-2">
+        <input type="text" id="from" placeholder="Your name" class="w-1/4 px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <input type="text" id="text" placeholder="Type a message..." class="flex-1 px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <button onclick="sendMessage()" class="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300">Send</button>
     </div>
 </div>
 
@@ -45,21 +42,34 @@
     }
 
     function sendMessage() {
-        var from = document.getElementById('from').value;
-        var text = document.getElementById('text').value;
+        var from = document.getElementById('from').value.trim();
+        var text = document.getElementById('text').value.trim();
 
-        // Send message to '/app/chat' mapped in ChatController
-        stompClient.send("/app/chat", {}, JSON.stringify({'from': from, 'text': text}));
+        if (from && text) {
+            // Send message to '/app/chat' mapped in ChatController
+            stompClient.send("/app/chat", {}, JSON.stringify({'from': from, 'text': text}));
 
-        // Clear the input field
-        document.getElementById('text').value = '';
+            // Clear the input field
+            document.getElementById('text').value = '';
+        }
     }
 
     function showMessage(message) {
         var messages = document.getElementById('messages');
         var messageElement = document.createElement('div');
+        messageElement.classList.add('mb-4', 'p-4', 'rounded-lg', 'shadow-sm', 'animate__animated', 'animate__fadeInUp', 'bg-gray-50');
 
-        messageElement.appendChild(document.createTextNode(message.from + ": " + message.text));
+        var fromElement = document.createElement('p');
+        fromElement.classList.add('font-semibold', 'text-blue-600', 'mb-1');
+        fromElement.appendChild(document.createTextNode(message.from));
+
+        var textElement = document.createElement('p');
+        textElement.classList.add('text-gray-700');
+        textElement.appendChild(document.createTextNode(message.text));
+
+        messageElement.appendChild(fromElement);
+        messageElement.appendChild(textElement);
+
         messages.appendChild(messageElement);
 
         // Auto-scroll to the latest message
